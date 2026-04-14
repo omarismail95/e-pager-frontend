@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   transpilePackages: INTERNAL_PACKAGES,
   env: {
     NEXT_PUBLIC_APP_NAME: 'E-Pager Staff',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'https://api.orderpager.net',
   },
 }
 
