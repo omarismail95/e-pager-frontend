@@ -7,38 +7,70 @@ import { Package, ChevronRight } from 'lucide-react'
 import { Badge, Card, CardContent } from '@epager/ui'
 import { createCustomerIdentityClient } from '@epager/api-client/customer-identity'
 
-interface CustomerOrder {
-  id: string
+interface LedgerEvent {
+  eventType: string
+  orderId: string
   shopId: string
-  displayNumber: string
-  status: string
-  channel: string
-  createdAt: string
+  eventTime: string
 }
 
-const STATUS_COLORS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning'> = {
+interface LedgerPage {
+  content: LedgerEvent[]
+  totalElements: number
+  totalPages: number
+}
+
+interface CustomerProfile {
+  id: string
+}
+
+const STATUS_COLORS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   NEW: 'default',
-  IN_PROGRESS: 'warning',
-  READY: 'success',
+  IN_PROGRESS: 'default',
+  READY: 'default',
   COMPLETED: 'secondary',
   CANCELLED: 'destructive',
 }
 
+// Tenant ID must be set per-deployment for the customer history lookup.
+// Each customer PWA instance is for a specific tenant/restaurant.
+const TENANT_ID = process.env['NEXT_PUBLIC_TENANT_ID'] ?? ''
+
 export default function OrdersPage() {
   const client = createCustomerIdentityClient()
 
-  const { data: orders = [], isLoading } = useQuery<CustomerOrder[]>({
-    queryKey: ['customer-orders'],
+  // Step 1: get customer profile to obtain customerId
+  const { data: profile } = useQuery<CustomerProfile>({
+    queryKey: ['customer-profile-id'],
     queryFn: async () => {
-      const res = await client.GET('/customer/orders' as never, {
-        params: { query: { size: 50 } } as never,
-      })
+      const res = await client.GET('/customer/profile' as never, {} as never)
       if ((res as { error?: unknown }).error) throw (res as { error: unknown }).error
-      const d = res.data as { content?: CustomerOrder[] } | undefined
-      return d?.content ?? (Array.isArray(res.data) ? (res.data as CustomerOrder[]) : [])
+      return res.data as unknown as CustomerProfile
+    },
+  })
+
+  // Step 2: fetch order history from ledger service (via /customer/history gateway route)
+  const { data: ledgerPage, isLoading } = useQuery<LedgerPage>({
+    queryKey: ['customer-order-history', profile?.id],
+    enabled: !!profile?.id && !!TENANT_ID,
+    queryFn: async () => {
+      const url = `/customer/history/customers/${profile!.id}/events?tenantId=${TENANT_ID}&limit=50`
+      const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } })
+      if (!res.ok) throw new Error('Failed to load order history')
+      return res.json()
     },
     refetchInterval: 10_000,
   })
+
+  // Deduplicate by orderId — ledger may have multiple events per order
+  const seenOrders = new Set<string>()
+  const orders = (ledgerPage?.content ?? []).filter((e) => {
+    if (seenOrders.has(e.orderId)) return false
+    seenOrders.add(e.orderId)
+    return true
+  })
+
+  const noTenantConfig = !TENANT_ID
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
@@ -48,7 +80,13 @@ export default function OrdersPage() {
       </div>
 
       <div className="flex-1 p-4">
-        {isLoading ? (
+        {noTenantConfig ? (
+          <div className="flex flex-col items-center py-16 text-center">
+            <Package className="mb-3 h-12 w-12 text-muted-foreground opacity-30" />
+            <p className="font-medium">Order history not configured</p>
+            <p className="text-sm text-muted-foreground">Set NEXT_PUBLIC_TENANT_ID to enable</p>
+          </div>
+        ) : isLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="h-20 animate-pulse rounded-xl bg-muted" />
@@ -62,19 +100,19 @@ export default function OrdersPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {orders.map((order) => (
-              <Link key={order.id} href={`/orders/${order.id}?shopId=${order.shopId}`}>
+            {orders.map((event) => (
+              <Link key={event.orderId} href={`/orders/${event.orderId}`}>
                 <Card className="active:scale-[0.98] transition-transform">
                   <CardContent className="flex items-center justify-between p-4">
                     <div>
-                      <p className="font-bold text-lg">#{order.displayNumber}</p>
+                      <p className="font-bold text-lg">Order</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(order.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(event.eventTime), { addSuffix: true })}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={STATUS_COLORS[order.status] ?? 'outline'}>
-                        {order.status.replace('_', ' ')}
+                      <Badge variant={STATUS_COLORS[event.eventType] ?? 'outline'}>
+                        {event.eventType.replace(/_/g, ' ')}
                       </Badge>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </div>

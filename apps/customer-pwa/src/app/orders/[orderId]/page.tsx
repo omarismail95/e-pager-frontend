@@ -2,7 +2,7 @@
 
 import { use } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { Button, Skeleton } from '@epager/ui'
 import { createOrderClient } from '@epager/api-client/order'
@@ -23,22 +23,20 @@ interface PageProps {
 
 export default function OrderDetailPage({ params }: PageProps) {
   const { orderId } = use(params)
-  const searchParams = useSearchParams()
   const router = useRouter()
-  const shopId = searchParams.get('shopId') ?? ''
   const client = createOrderClient()
 
   const { data: order, isLoading } = useQuery<OrderDetail>({
     queryKey: ['customer-order', orderId],
     queryFn: async () => {
-      const res = await client.GET('/api/shops/{shopId}/orders/{orderId}' as never, {
-        params: { path: { shopId, orderId } } as never,
+      const res = await client.GET('/customer/order-status/{orderId}' as never, {
+        params: { path: { orderId } } as never,
       })
       if ((res as { error?: unknown }).error) throw (res as { error: unknown }).error
       return res.data as OrderDetail
     },
     refetchInterval: 5000,
-    enabled: !!shopId,
+    enabled: !!orderId,
   })
 
   return (

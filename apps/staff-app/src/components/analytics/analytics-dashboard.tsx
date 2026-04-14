@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
 import { TrendingUp, ShoppingBag, CheckCircle, XCircle } from 'lucide-react'
 import { Card, CardContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@epager/ui'
 import { createAnalyticsClient } from '@epager/api-client/analytics'
@@ -9,33 +9,48 @@ import { useShopStore } from '@/store/shop-store'
 import { OrdersChart } from './orders-chart'
 import { StatusFunnel } from './status-funnel'
 
-interface AnalyticsDashboardData {
-  totalOrders?: number
-  completedOrders?: number
-  cancelledOrders?: number
-  avgOrdersPerDay?: number
-  ordersPerDay?: Array<{ date: string; count: number }>
-  ordersByStatus?: Array<{ status: string; count: number }>
+function buildRange(days: number): { from: string; to: string } {
+  const to = new Date()
+  const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000)
+  return { from: from.toISOString(), to: to.toISOString() }
 }
 
 export function AnalyticsDashboard() {
-  const { selectedShopId } = useShopStore()
+  const { selectedShopId, selectedTenantId } = useShopStore()
   const [range, setRange] = useState('7')
   const client = createAnalyticsClient()
 
-  const { data, isLoading } = useQuery<AnalyticsDashboardData>({
-    queryKey: ['analytics-dashboard', selectedShopId, range],
-    enabled: !!selectedShopId,
-    queryFn: async () => {
-      const res = await client.GET('/analytics/shops/{shopId}/dashboard' as never, {
-        params: {
-          path: { shopId: selectedShopId! },
-          query: { days: Number(range) },
-        } as never,
-      })
-      if ((res as { error?: unknown }).error) throw (res as { error: unknown }).error
-      return (res.data ?? {}) as AnalyticsDashboardData
-    },
+  // All hooks must be called unconditionally — guard via `enabled`
+  const [summaryQuery, metricsQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ['analytics-summary', selectedShopId, range],
+        enabled: !!selectedShopId && !!selectedTenantId,
+        queryFn: async () => {
+          const { from, to } = buildRange(Number(range))
+          const res = await client.GET('/analytics/shops/{shopId}/dashboard' as never, {
+            params: { path: { shopId: selectedShopId! }, query: { tenantId: selectedTenantId!, from, to } } as never,
+          })
+          if ((res as { error?: unknown }).error) throw (res as { error: unknown }).error
+          return res.data as Record<string, unknown>
+        },
+      },
+      {
+        queryKey: ['analytics-metrics', selectedShopId, range],
+        enabled: !!selectedShopId && !!selectedTenantId,
+        queryFn: async () => {
+          const { from, to } = buildRange(Number(range))
+          const res = await client.GET('/analytics/shops/{shopId}/metrics' as never, {
+            params: {
+              path: { shopId: selectedShopId! },
+              query: { tenantId: selectedTenantId!, from, to, granularity: 'DAY' },
+            } as never,
+          })
+          if ((res as { error?: unknown }).error) throw (res as { error: unknown }).error
+          return res.data as Record<string, unknown>
+        },
+      },
+    ],
   })
 
   if (!selectedShopId) {
@@ -46,38 +61,48 @@ export function AnalyticsDashboard() {
     )
   }
 
-  const ordersPerDay = (data?.ordersPerDay ?? []).map((d) => ({
-    date: new Date(d.date).toLocaleDateString('en', { month: 'short', day: 'numeric' }),
-    orders: d.count,
+  const isLoading = summaryQuery.isLoading || metricsQuery.isLoading
+  const summary = summaryQuery.data ?? {}
+  const metricsData = (metricsQuery.data as { data?: Array<{ timestamp: string; count: number }> })?.data ?? []
+
+  // Transform Map<String,Long> → [{status,count}] for the funnel chart
+  const rawStatusMap = (summary.ordersByStatus ?? {}) as Record<string, number>
+  const ordersByStatus = Object.entries(rawStatusMap).map(([status, count]) => ({ status, count }))
+
+  // Time-series points for the line chart (one point per day bucket)
+  const ordersPerDay = metricsData.map((pt) => ({
+    date: new Date(pt.timestamp).toLocaleDateString('en', { month: 'short', day: 'numeric' }),
+    orders: pt.count,
   }))
 
-  const ordersByStatus = data?.ordersByStatus ?? []
+  const daysCount = Number(range)
+  const avgOrdersPerDay = daysCount > 0 ? ((summary.totalOrders as number) ?? 0) / daysCount : 0
 
   const kpis = [
     {
       label: 'Total Orders',
-      value: data?.totalOrders ?? 0,
+      value: (summary.totalOrders as number) ?? 0,
       icon: ShoppingBag,
       color: 'text-blue-600',
       bg: 'bg-blue-50',
     },
     {
       label: 'Completed',
-      value: data?.completedOrders ?? 0,
+      value: (summary.completedOrders as number) ?? 0,
       icon: CheckCircle,
       color: 'text-green-600',
       bg: 'bg-green-50',
     },
     {
       label: 'Cancelled',
-      value: data?.cancelledOrders ?? 0,
+      value: (summary.cancelledOrders as number) ?? 0,
       icon: XCircle,
       color: 'text-red-600',
       bg: 'bg-red-50',
     },
     {
       label: 'Avg / Day',
-      value: data?.avgOrdersPerDay?.toFixed(1) ?? '0',
+      value: avgOrdersPerDay.toFixed(1),
       icon: TrendingUp,
       color: 'text-purple-600',
       bg: 'bg-purple-50',
