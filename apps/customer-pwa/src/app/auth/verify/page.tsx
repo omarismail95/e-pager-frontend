@@ -58,14 +58,17 @@ export default function VerifyPage() {
   }
 
   async function handleResend() {
-    const newRequestId = crypto.randomUUID()
-    sessionStorage.setItem('otp_request_id', newRequestId)
-    setRequestId(newRequestId)
-    await fetch('/api/auth', {
+    const res = await fetch('/api/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, requestId: newRequestId }),
+      body: JSON.stringify({ phone }),
     })
+    if (res.ok) {
+      const data = (await res.json()) as { ok: boolean; otpRequestId?: string }
+      const newRequestId = data.otpRequestId ?? ''
+      sessionStorage.setItem('otp_request_id', newRequestId)
+      setRequestId(newRequestId)
+    }
     setResendCountdown(60)
     setOtp('')
     setError(null)

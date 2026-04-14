@@ -16,19 +16,19 @@ export default function AuthPage() {
     setError(null)
     setLoading(true)
     try {
-      const requestId = crypto.randomUUID()
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, requestId }),
+        body: JSON.stringify({ phone }),
       })
       if (!res.ok) {
         setError('Failed to send OTP. Please try again.')
         return
       }
-      // Store phone + requestId for verify step
+      // Store phone + server-returned otpRequestId for verify step
+      const data = (await res.json()) as { ok: boolean; otpRequestId?: string }
       sessionStorage.setItem('otp_phone', phone)
-      sessionStorage.setItem('otp_request_id', requestId)
+      sessionStorage.setItem('otp_request_id', data.otpRequestId ?? '')
       router.push('/auth/verify')
     } catch {
       setError('Network error. Please try again.')

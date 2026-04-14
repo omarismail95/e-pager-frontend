@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { Package, ChevronRight } from 'lucide-react'
 import { Badge, Card, CardContent } from '@epager/ui'
 import { createCustomerIdentityClient } from '@epager/api-client/customer-identity'
+import { getGlobalAuthToken } from '@epager/api-client'
 
 interface LedgerEvent {
   eventType: string
@@ -54,8 +55,15 @@ export default function OrdersPage() {
     queryKey: ['customer-order-history', profile?.id],
     enabled: !!profile?.id && !!TENANT_ID,
     queryFn: async () => {
-      const url = `/customer/history/customers/${profile!.id}/events?tenantId=${TENANT_ID}&limit=50`
-      const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } })
+      const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8080'
+      const url = `${apiUrl}/customer/history/customers/${profile!.id}/events?tenantId=${TENANT_ID}&limit=50`
+      const token = getGlobalAuthToken()
+      const res = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      })
       if (!res.ok) throw new Error('Failed to load order history')
       return res.json()
     },
