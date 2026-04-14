@@ -3,6 +3,7 @@ import { Geist } from 'next/font/google'
 import './globals.css'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { AuthProvider } from '@/components/providers/auth-provider'
+import { getStaffToken } from '@epager/auth/server'
 
 const geist = Geist({
   variable: '--font-geist',
@@ -14,12 +15,13 @@ export const metadata: Metadata = {
   description: 'E-Pager restaurant staff dashboard',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const token = await getStaffToken()
   return (
     <html lang="en" className={`${geist.variable} h-full antialiased`}>
       <body className="h-full bg-background text-foreground">
         <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider initialToken={token}>{children}</AuthProvider>
         </QueryProvider>
       </body>
     </html>
