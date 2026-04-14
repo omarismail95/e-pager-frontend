@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@epager/ui'
 import type { StaffTokenClaims } from '@epager/auth'
+import { ShopSelector } from './shop-selector'
 
 interface DashboardHeaderProps {
   session: StaffTokenClaims
@@ -28,7 +29,7 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
 
   return (
     <header className="flex h-14 items-center justify-between border-b bg-card px-6">
-      <div />
+      <ShopSelector />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className="gap-2">

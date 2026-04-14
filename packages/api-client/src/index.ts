@@ -27,3 +27,6 @@ export type { AnalyticsClient } from './clients/analytics'
 
 export { createMeteringClient } from './clients/metering'
 export type { MeteringClient } from './clients/metering'
+
+export { createTokenClient } from './clients/token'
+export type { TokenClient } from './clients/token'

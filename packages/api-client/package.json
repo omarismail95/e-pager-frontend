@@ -13,7 +13,8 @@
     "./customer-identity": "./src/clients/customer-identity.ts",
     "./admin": "./src/clients/admin.ts",
     "./analytics": "./src/clients/analytics.ts",
-    "./metering": "./src/clients/metering.ts"
+    "./metering": "./src/clients/metering.ts",
+    "./token": "./src/clients/token.ts"
   },
   "scripts": {
     "generate-types": "node scripts/generate.mjs",

@@ -1,16 +1,12 @@
+'use client'
+
 import { Suspense } from 'react'
 import { Skeleton } from '@epager/ui'
 import { OrderBoard } from '@/components/orders/order-board'
-import { getStaffSession } from '@epager/auth/server'
-import { redirect } from 'next/navigation'
+import { useShopStore } from '@/store/shop-store'
 
-export const metadata = { title: 'Orders — E-Pager Staff' }
-
-export default async function OrdersPage() {
-  const session = await getStaffSession()
-  if (!session) redirect('/login')
-
-  const shopId = session.tenant_id // In real flow, comes from Zustand selectedShopId
+export default function OrdersPage() {
+  const { selectedShopId, selectedTenantId } = useShopStore()
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -18,11 +14,11 @@ export default async function OrdersPage() {
         <h1 className="text-2xl font-bold">Orders</h1>
       </div>
       <Suspense fallback={<BoardSkeleton />}>
-        {shopId ? (
-          <OrderBoard shopId={shopId} tenantId={session.tenant_id ?? ''} />
+        {selectedShopId && selectedTenantId ? (
+          <OrderBoard shopId={selectedShopId} tenantId={selectedTenantId} />
         ) : (
           <div className="flex flex-1 items-center justify-center text-muted-foreground">
-            Select a shop to view orders
+            Select a shop from the header to view orders
           </div>
         )}
       </Suspense>
