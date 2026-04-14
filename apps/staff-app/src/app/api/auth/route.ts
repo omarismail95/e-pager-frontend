@@ -9,7 +9,7 @@ import { setStaffTokenCookie } from '@epager/auth/server'
 
 export async function POST(request: NextRequest) {
   const body = await request.json() as { email: string; password: string }
-  const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8080'
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
   const upstream = await fetch(`${apiUrl}/api/staff/auth/login`, {
     method: 'POST',

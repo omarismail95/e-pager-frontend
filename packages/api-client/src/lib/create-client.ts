@@ -31,7 +31,7 @@ export function getGlobalAuthToken(): string | null {
  * Auth priority: options.token → global token set by setGlobalAuthToken().
  */
 export function createApiClient<Paths extends object>(options: ClientOptions = {}) {
-  const baseUrl = options.baseUrl ?? (process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8080')
+  const baseUrl = options.baseUrl ?? (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080')
 
   const client = createFetchClient<Paths>({
     baseUrl,

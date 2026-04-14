@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { setCustomerTokenCookies, clearCustomerTokens } from '@epager/auth/server'
 
-const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:8080'
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
 
 // POST /api/auth — OTP request
 export async function POST(req: NextRequest) {
