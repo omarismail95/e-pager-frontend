@@ -1,4 +1,4 @@
-export { createApiClient } from './lib/create-client'
+export { createApiClient, setGlobalAuthToken, getGlobalAuthToken } from './lib/create-client'
 export type { ClientOptions } from './lib/create-client'
 
 export { createOrderClient } from './clients/order'

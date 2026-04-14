@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { protectRoute } from '@epager/auth/middleware'
 
-const PUBLIC_PATHS = ['/auth', '/api/auth']
+const PUBLIC_PATHS = ['/auth', '/api/auth', '/api/session']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
