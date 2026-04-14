@@ -16,9 +16,11 @@ interface LedgerEvent {
 }
 
 interface LedgerPage {
-  content: LedgerEvent[]
-  totalElements: number
-  totalPages: number
+  items: LedgerEvent[]
+  totalCount: number
+  page: number
+  pageSize: number
+  hasNext: boolean
 }
 
 interface CustomerProfile {
@@ -72,7 +74,7 @@ export default function OrdersPage() {
 
   // Deduplicate by orderId — ledger may have multiple events per order
   const seenOrders = new Set<string>()
-  const orders = (ledgerPage?.content ?? []).filter((e) => {
+  const orders = (ledgerPage?.items ?? []).filter((e) => {
     if (seenOrders.has(e.orderId)) return false
     seenOrders.add(e.orderId)
     return true
