@@ -12,7 +12,6 @@ COPY packages/ui/package.json ./packages/ui/
 COPY packages/api-client/package.json ./packages/api-client/
 COPY packages/auth/package.json ./packages/auth/
 COPY packages/i18n/package.json ./packages/i18n/
-COPY packages/types/package.json ./packages/types/
 COPY apps/customer-pwa/package.json ./apps/customer-pwa/
 RUN pnpm install --frozen-lockfile
 
