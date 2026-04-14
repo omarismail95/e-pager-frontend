@@ -1,0 +1,147 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "confirm": "Confirm",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "refresh": "Refresh",
+    "actions": "Actions",
+    "status": "Status",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "date": "Date",
+    "id": "ID",
+    "noResults": "No results found",
+    "tryAgain": "Try again"
+  },
+  "nav": {
+    "orders": "Orders",
+    "shops": "Shops",
+    "loyalty": "Loyalty",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "tenants": "Tenants",
+    "health": "Health",
+    "audit": "Audit Logs",
+    "metering": "Metering",
+    "customers": "Customers",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "email": "Email address",
+    "password": "Password",
+    "phone": "Phone number",
+    "otpCode": "Verification code",
+    "requestOtp": "Send code",
+    "verifyOtp": "Verify",
+    "otpSent": "A 6-digit code has been sent to {phone}",
+    "otpExpires": "Code expires in {minutes} minutes",
+    "invalidOtp": "Invalid or expired code",
+    "loginError": "Invalid credentials",
+    "sessionExpired": "Your session has expired. Please sign in again."
+  },
+  "orders": {
+    "title": "Orders",
+    "new": "New Order",
+    "status": {
+      "NEW": "New",
+      "IN_PROGRESS": "In Progress",
+      "READY": "Ready",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "channel": {
+      "WALK_IN": "Walk In",
+      "ONLINE": "Online",
+      "PHONE": "Phone"
+    },
+    "displayNumber": "Order #{number}",
+    "createdAt": "Created {time}",
+    "customer": "Customer",
+    "noCustomer": "No customer linked",
+    "advanceStatus": "Advance to {status}",
+    "cancelOrder": "Cancel Order",
+    "cancelReason": "Cancellation reason",
+    "attachCustomer": "Link Customer",
+    "orderCreated": "Order created",
+    "statusUpdated": "Status updated to {status}",
+    "createError": "Failed to create order"
+  },
+  "shops": {
+    "title": "Shops",
+    "new": "New Shop",
+    "status": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "CLOSED": "Closed"
+    },
+    "code": "Shop code",
+    "timezone": "Timezone",
+    "country": "Country",
+    "address": "Address",
+    "devices": "Devices",
+    "qrCodes": "QR Codes",
+    "settings": "Settings"
+  },
+  "loyalty": {
+    "title": "Loyalty Programs",
+    "new": "New Program",
+    "status": {
+      "ACTIVE": "Active",
+      "DISABLED": "Disabled"
+    },
+    "points": "{points} points",
+    "tier": "Tier",
+    "enrollments": "Enrollments",
+    "discounts": "Discounts"
+  },
+  "tenants": {
+    "title": "Tenants",
+    "status": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "CLOSED": "Closed"
+    },
+    "plan": "Plan",
+    "suspend": "Suspend",
+    "activate": "Activate",
+    "changePlan": "Change Plan",
+    "suspendReason": "Suspension reason",
+    "features": "Feature Flags"
+  },
+  "health": {
+    "title": "Service Health",
+    "status": {
+      "UP": "Healthy",
+      "DOWN": "Down",
+      "UNKNOWN": "Unknown"
+    },
+    "lastChecked": "Last checked {time}"
+  },
+  "customer": {
+    "orderStatus": "Order Status",
+    "orderReady": "Your order is ready!",
+    "orderCancelled": "Order cancelled",
+    "waitingTime": "Estimated wait: {minutes} min",
+    "loyalty": "My Rewards",
+    "orders": "My Orders",
+    "profile": "My Profile"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@epager/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./order": "./src/clients/order.ts",
+    "./shop": "./src/clients/shop.ts",
+    "./tenant": "./src/clients/tenant.ts",
+    "./loyalty": "./src/clients/loyalty.ts",
+    "./identity": "./src/clients/identity.ts",
+    "./customer-identity": "./src/clients/customer-identity.ts",
+    "./admin": "./src/clients/admin.ts",
+    "./analytics": "./src/clients/analytics.ts",
+    "./metering": "./src/clients/metering.ts"
+  },
+  "scripts": {
+    "generate-types": "node scripts/generate.mjs",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.13.5"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.8.0",
+    "typescript": "^5"
+  }
+}

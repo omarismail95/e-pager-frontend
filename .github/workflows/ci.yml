@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  ci:
+    name: Lint, Type-check & Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check all packages & apps
+        run: pnpm turbo type-check
+
+      - name: Lint all packages & apps
+        run: pnpm turbo lint
+
+      - name: Build all apps
+        run: pnpm turbo build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          # Turbo remote cache (optional, add TURBO_TOKEN + TURBO_TEAM secrets)
+          # TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          # TURBO_TEAM: ${{ secrets.TURBO_TEAM }}

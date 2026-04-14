@@ -1,0 +1,39 @@
+{
+  "name": "@epager/admin-portal",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3001 --turbopack",
+    "build": "next build",
+    "start": "next start --port 3001",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@epager/api-client": "workspace:*",
+    "@epager/auth": "workspace:*",
+    "@epager/i18n": "workspace:*",
+    "@epager/ui": "workspace:*",
+    "@tanstack/react-query": "^5.74.4",
+    "@tanstack/react-table": "^8.21.3",
+    "next": "16.2.3",
+    "next-intl": "^4.1.0",
+    "openapi-fetch": "^0.13.5",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-hook-form": "^7.55.0",
+    "recharts": "^2.15.3",
+    "zustand": "^5.0.3",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.3",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

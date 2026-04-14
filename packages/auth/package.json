@@ -1,0 +1,22 @@
+{
+  "name": "@epager/auth",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./middleware": "./src/middleware.ts",
+    "./server": "./src/server.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "next": ">=15.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "next": "16.2.3",
+    "typescript": "^5"
+  }
+}

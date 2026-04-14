@@ -1,0 +1,24 @@
+{
+  "name": "@epager/i18n",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./messages/*": "./src/messages/*"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next-intl": "^4.1.0"
+  },
+  "peerDependencies": {
+    "next": ">=15.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "next": "16.2.3",
+    "typescript": "^5"
+  }
+}

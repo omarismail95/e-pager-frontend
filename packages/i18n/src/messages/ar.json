@@ -1,0 +1,147 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ ما",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "search": "بحث",
+    "filter": "تصفية",
+    "export": "تصدير",
+    "back": "رجوع",
+    "next": "التالي",
+    "submit": "إرسال",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "yes": "نعم",
+    "no": "لا",
+    "refresh": "تحديث",
+    "actions": "إجراءات",
+    "status": "الحالة",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "date": "التاريخ",
+    "id": "المعرف",
+    "noResults": "لا توجد نتائج",
+    "tryAgain": "حاول مرة أخرى"
+  },
+  "nav": {
+    "orders": "الطلبات",
+    "shops": "المتاجر",
+    "loyalty": "الولاء",
+    "analytics": "التحليلات",
+    "settings": "الإعدادات",
+    "tenants": "المستأجرون",
+    "health": "صحة النظام",
+    "audit": "سجل التدقيق",
+    "metering": "الاستهلاك",
+    "customers": "العملاء",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "phone": "رقم الهاتف",
+    "otpCode": "رمز التحقق",
+    "requestOtp": "إرسال الرمز",
+    "verifyOtp": "تحقق",
+    "otpSent": "تم إرسال رمز مكون من 6 أرقام إلى {phone}",
+    "otpExpires": "ينتهي الرمز خلال {minutes} دقائق",
+    "invalidOtp": "رمز غير صالح أو منتهي الصلاحية",
+    "loginError": "بيانات اعتماد غير صالحة",
+    "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى."
+  },
+  "orders": {
+    "title": "الطلبات",
+    "new": "طلب جديد",
+    "status": {
+      "NEW": "جديد",
+      "IN_PROGRESS": "قيد التنفيذ",
+      "READY": "جاهز",
+      "COMPLETED": "مكتمل",
+      "CANCELLED": "ملغي"
+    },
+    "channel": {
+      "WALK_IN": "حضوري",
+      "ONLINE": "إلكتروني",
+      "PHONE": "هاتفي"
+    },
+    "displayNumber": "طلب #{number}",
+    "createdAt": "أُنشئ {time}",
+    "customer": "العميل",
+    "noCustomer": "لم يتم ربط عميل",
+    "advanceStatus": "تقدم إلى {status}",
+    "cancelOrder": "إلغاء الطلب",
+    "cancelReason": "سبب الإلغاء",
+    "attachCustomer": "ربط عميل",
+    "orderCreated": "تم إنشاء الطلب",
+    "statusUpdated": "تم تحديث الحالة إلى {status}",
+    "createError": "فشل إنشاء الطلب"
+  },
+  "shops": {
+    "title": "المتاجر",
+    "new": "متجر جديد",
+    "status": {
+      "ACTIVE": "نشط",
+      "SUSPENDED": "موقوف",
+      "CLOSED": "مغلق"
+    },
+    "code": "رمز المتجر",
+    "timezone": "المنطقة الزمنية",
+    "country": "الدولة",
+    "address": "العنوان",
+    "devices": "الأجهزة",
+    "qrCodes": "رموز QR",
+    "settings": "الإعدادات"
+  },
+  "loyalty": {
+    "title": "برامج الولاء",
+    "new": "برنامج جديد",
+    "status": {
+      "ACTIVE": "نشط",
+      "DISABLED": "معطل"
+    },
+    "points": "{points} نقطة",
+    "tier": "المستوى",
+    "enrollments": "الاشتراكات",
+    "discounts": "الخصومات"
+  },
+  "tenants": {
+    "title": "المستأجرون",
+    "status": {
+      "ACTIVE": "نشط",
+      "SUSPENDED": "موقوف",
+      "CLOSED": "مغلق"
+    },
+    "plan": "الخطة",
+    "suspend": "إيقاف",
+    "activate": "تفعيل",
+    "changePlan": "تغيير الخطة",
+    "suspendReason": "سبب الإيقاف",
+    "features": "الميزات"
+  },
+  "health": {
+    "title": "صحة الخدمات",
+    "status": {
+      "UP": "يعمل",
+      "DOWN": "متوقف",
+      "UNKNOWN": "غير معروف"
+    },
+    "lastChecked": "آخر فحص {time}"
+  },
+  "customer": {
+    "orderStatus": "حالة الطلب",
+    "orderReady": "طلبك جاهز!",
+    "orderCancelled": "تم إلغاء الطلب",
+    "waitingTime": "وقت الانتظار المتوقع: {minutes} دقيقة",
+    "loyalty": "مكافآتي",
+    "orders": "طلباتي",
+    "profile": "ملفي الشخصي"
+  }
+}
