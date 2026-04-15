@@ -1,0 +1,95 @@
+# CD: Deploy frontend apps to DigitalOcean droplet after CI succeeds on main (or manually)
+# Builds only the changed app(s) to avoid OOM on the 4 GB droplet.
+# The compose file lives in the backend repo; we SSH in and run compose from there.
+name: Deploy to Production
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy frontend to droplet
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Detect changed apps
+        id: changed
+        run: |
+          BEFORE="${{ github.event.before }}"
+          [ -z "$BEFORE" ] && BEFORE="HEAD~1"
+          FILES=$(git diff --name-only "$BEFORE" ${{ github.sha }} 2>/dev/null || echo "")
+          LIST="all"
+          if [ -n "$FILES" ] && ! echo "$FILES" | grep -qE "^packages/|\.github/workflows"; then
+            APPS=""
+            echo "$FILES" | grep -q "apps/staff-app/"    && APPS="staff-app $APPS"
+            echo "$FILES" | grep -q "apps/admin-portal/" && APPS="admin-portal $APPS"
+            echo "$FILES" | grep -q "apps/customer-pwa/" && APPS="customer-pwa $APPS"
+            [ -n "$APPS" ] && LIST="$APPS"
+          fi
+          echo "list=$LIST" >> $GITHUB_OUTPUT
+          echo "Build list: $LIST"
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || '22' }}
+          command_timeout: 30m
+          script: |
+            set -e
+            DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
+            [ -z "$DEPLOY_PATH" ] && DEPLOY_PATH=/opt/epager
+            FE_PATH="$(dirname "$DEPLOY_PATH")/e-pager-frontend"
+
+            echo "--- Pulling latest frontend code ---"
+            if [ -d "$FE_PATH/.git" ]; then
+              cd "$FE_PATH"
+              git fetch origin
+              git reset --hard origin/main
+            else
+              echo "ERROR: Frontend repo not found at $FE_PATH"
+              echo "Run once on the droplet:"
+              echo "  git clone https://github.com/omarismail95/e-pager-frontend.git $FE_PATH"
+              exit 1
+            fi
+
+            cd "$DEPLOY_PATH"
+            BUILD_LIST="${{ steps.changed.outputs.list }}"
+            COMPOSE_CMD="docker compose -f docker-compose.yml -f docker-compose.nginx.yml --env-file .env.production"
+
+            if [ "$BUILD_LIST" = "all" ] || [ -z "$BUILD_LIST" ]; then
+              echo "--- Building all frontend apps ---"
+              for app in staff-app admin-portal customer-pwa; do
+                echo "Building $app..."
+                $COMPOSE_CMD build "$app"
+              done
+            else
+              echo "--- Building changed apps only: $BUILD_LIST ---"
+              for app in $BUILD_LIST; do
+                echo "Building $app..."
+                $COMPOSE_CMD build "$app"
+              done
+            fi
+
+            echo "--- Starting containers ---"
+            $COMPOSE_CMD up -d
+
+            echo "--- Restarting Nginx to pick up any config changes ---"
+            $COMPOSE_CMD restart nginx
+
+            $COMPOSE_CMD ps
+            echo "Frontend deploy completed."
