@@ -52,7 +52,7 @@ export function QuotaMeters() {
       const res = await client.GET('/internal/usage/current' as never, {} as never)
       if ((res as { error?: unknown }).error) throw (res as { error: unknown }).error
       // Backend returns { tenantId, asOf, usage: QuotaUsage[] }
-      const body = res.data as { usage?: QuotaUsage[] } | QuotaUsage[] | null
+      const body = res.data as unknown as { usage?: QuotaUsage[] } | QuotaUsage[] | null
       if (Array.isArray(body)) return body
       if (body && 'usage' in body && Array.isArray(body.usage)) return body.usage
       return []
