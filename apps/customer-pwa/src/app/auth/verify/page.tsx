@@ -10,6 +10,7 @@ export default function VerifyPage() {
   const [otp, setOtp] = useState('')
   const [phone, setPhone] = useState('')
   const [requestId, setRequestId] = useState('')
+  const [debugOtpCode, setDebugOtpCode] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [resendCountdown, setResendCountdown] = useState(60)
@@ -17,12 +18,14 @@ export default function VerifyPage() {
   useEffect(() => {
     const storedPhone = sessionStorage.getItem('otp_phone')
     const storedRequestId = sessionStorage.getItem('otp_request_id')
+    const storedDebugCode = sessionStorage.getItem('otp_debug_code')
     if (!storedPhone) {
       router.replace('/auth')
       return
     }
     setPhone(storedPhone)
     setRequestId(storedRequestId ?? '')
+    if (storedDebugCode) setDebugOtpCode(storedDebugCode)
   }, [router])
 
   useEffect(() => {
@@ -48,6 +51,7 @@ export default function VerifyPage() {
       }
       sessionStorage.removeItem('otp_phone')
       sessionStorage.removeItem('otp_request_id')
+      sessionStorage.removeItem('otp_debug_code')
       router.push('/orders')
       router.refresh()
     } catch {
@@ -64,10 +68,14 @@ export default function VerifyPage() {
       body: JSON.stringify({ phone }),
     })
     if (res.ok) {
-      const data = (await res.json()) as { ok: boolean; otpRequestId?: string }
+      const data = (await res.json()) as { ok: boolean; otpRequestId?: string; debugOtpCode?: string | null }
       const newRequestId = data.otpRequestId ?? ''
       sessionStorage.setItem('otp_request_id', newRequestId)
       setRequestId(newRequestId)
+      if (data.debugOtpCode) {
+        sessionStorage.setItem('otp_debug_code', data.debugOtpCode)
+        setDebugOtpCode(data.debugOtpCode)
+      }
     }
     setResendCountdown(60)
     setOtp('')
@@ -95,6 +103,12 @@ export default function VerifyPage() {
           <CardContent className="flex flex-col items-center gap-4 pt-6">
             {error && (
               <div className="w-full rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>
+            )}
+            {debugOtpCode && (
+              <div className="w-full rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-center">
+                <p className="text-xs font-medium text-amber-700">Demo mode — your code is:</p>
+                <p className="mt-0.5 text-2xl font-bold tracking-widest text-amber-900">{debugOtpCode}</p>
+              </div>
             )}
             <OtpInput value={otp} onChange={setOtp} disabled={loading} />
           </CardContent>

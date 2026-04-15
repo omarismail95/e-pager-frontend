@@ -24,8 +24,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to send OTP', detail: err }, { status: res.status })
     }
     // Return server-generated otpRequestId to the client for use in step 2
-    const data = (await res.json()) as { otpRequestId: string; expiresInSeconds: number }
-    return NextResponse.json({ ok: true, otpRequestId: data.otpRequestId })
+    const data = (await res.json()) as { otpRequestId: string; expiresInSeconds: number; debugOtpCode?: string }
+    return NextResponse.json({ ok: true, otpRequestId: data.otpRequestId, debugOtpCode: data.debugOtpCode ?? null })
   }
 
   if (body.phone && body.otp && body.requestId) {

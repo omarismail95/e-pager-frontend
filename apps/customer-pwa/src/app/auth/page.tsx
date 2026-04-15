@@ -26,9 +26,14 @@ export default function AuthPage() {
         return
       }
       // Store phone + server-returned otpRequestId for verify step
-      const data = (await res.json()) as { ok: boolean; otpRequestId?: string }
+      const data = (await res.json()) as { ok: boolean; otpRequestId?: string; debugOtpCode?: string | null }
       sessionStorage.setItem('otp_phone', phone)
       sessionStorage.setItem('otp_request_id', data.otpRequestId ?? '')
+      if (data.debugOtpCode) {
+        sessionStorage.setItem('otp_debug_code', data.debugOtpCode)
+      } else {
+        sessionStorage.removeItem('otp_debug_code')
+      }
       router.push('/auth/verify')
     } catch {
       setError('Network error. Please try again.')
