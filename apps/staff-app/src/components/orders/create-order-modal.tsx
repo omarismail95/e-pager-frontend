@@ -32,7 +32,7 @@ export function CreateOrderModal({
   tenantId,
   onCreated,
 }: CreateOrderModalProps) {
-  const [channel, setChannel] = useState('WALK_IN')
+  const [channel, setChannel] = useState('CASHIER')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const client = createOrderClient()
@@ -49,7 +49,7 @@ export function CreateOrderModal({
       if ((res as { error?: unknown }).error) throw new Error('Failed to create order')
       onCreated()
       onOpenChange(false)
-      setChannel('WALK_IN')
+      setChannel('CASHIER')
     } catch {
       setError('Failed to create order. Please try again.')
     } finally {
@@ -77,9 +77,9 @@ export function CreateOrderModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="WALK_IN">Walk-in</SelectItem>
-                <SelectItem value="ONLINE">Online</SelectItem>
-                <SelectItem value="PHONE">Phone</SelectItem>
+                <SelectItem value="CASHIER">Walk-in / Cashier</SelectItem>
+                <SelectItem value="WEB">Online / Web</SelectItem>
+                <SelectItem value="APP">Mobile App</SelectItem>
               </SelectContent>
             </Select>
           </div>

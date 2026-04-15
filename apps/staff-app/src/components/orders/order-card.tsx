@@ -22,9 +22,9 @@ const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
 }
 
 const CHANNEL_LABELS: Record<string, string> = {
-  WALK_IN: 'Walk-in',
-  ONLINE: 'Online',
-  PHONE: 'Phone',
+  CASHIER: 'Walk-in',
+  WEB: 'Online',
+  APP: 'App',
 }
 
 interface OrderCardProps {
