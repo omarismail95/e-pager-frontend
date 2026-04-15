@@ -49,8 +49,8 @@ export default function ScanStatusPage({ params }: PageProps) {
   const { ref } = use(params)
   const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? ''
   const prevStatusRef = useRef<string | null>(null)
+  const hasPlayedReadyRef = useRef(false)
   const [soundEnabled, setSoundEnabled] = useState(false)
-  const [hasPlayedReady, setHasPlayedReady] = useState(false)
 
   const { data, isLoading, isError } = useQuery<PublicOrderStatus>({
     queryKey: ['scan-status', ref],
@@ -64,25 +64,22 @@ export default function ScanStatusPage({ params }: PageProps) {
     enabled: !!ref,
   })
 
-  // Sound: play when order transitions to READY
+  // Play sound when order transitions to READY; reset flag when status moves away
   useEffect(() => {
     if (!data) return
     const prev = prevStatusRef.current
     const curr = data.status
     prevStatusRef.current = curr
 
-    if (curr === 'READY' && prev !== 'READY' && !hasPlayedReady && soundEnabled) {
+    if (curr !== 'READY') {
+      hasPlayedReadyRef.current = false
+      return
+    }
+    if (prev !== 'READY' && !hasPlayedReadyRef.current && soundEnabled) {
       playReadySound()
-      setHasPlayedReady(true)
+      hasPlayedReadyRef.current = true
     }
-  }, [data, soundEnabled, hasPlayedReady])
-
-  // Re-enable sound on next order visit
-  useEffect(() => {
-    if (data?.status && data.status !== 'READY') {
-      setHasPlayedReady(false)
-    }
-  }, [data])
+  }, [data, soundEnabled])
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
