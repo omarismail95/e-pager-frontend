@@ -85,8 +85,11 @@ jobs:
               done
             fi
 
+            echo "--- Pruning stopped containers to prevent name conflicts ---"
+            docker container prune -f
+
             echo "--- Starting containers ---"
-            $COMPOSE_CMD up -d
+            $COMPOSE_CMD up -d --remove-orphans
 
             echo "--- Restarting Nginx to pick up any config changes ---"
             $COMPOSE_CMD restart nginx
