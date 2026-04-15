@@ -72,24 +72,25 @@ jobs:
             COMPOSE_CMD="docker compose -f docker-compose.yml -f docker-compose.nginx.yml --env-file .env.production"
 
             if [ "$BUILD_LIST" = "all" ] || [ -z "$BUILD_LIST" ]; then
-              echo "--- Building all frontend apps ---"
-              for app in staff-app admin-portal customer-pwa; do
-                echo "Building $app..."
-                $COMPOSE_CMD build "$app"
-              done
+              APPS_TO_DEPLOY="staff-app admin-portal customer-pwa"
             else
-              echo "--- Building changed apps only: $BUILD_LIST ---"
-              for app in $BUILD_LIST; do
-                echo "Building $app..."
-                $COMPOSE_CMD build "$app"
-              done
+              APPS_TO_DEPLOY="$BUILD_LIST"
             fi
 
-            echo "--- Pruning stopped containers to prevent name conflicts ---"
-            docker container prune -f
+            echo "--- Building: $APPS_TO_DEPLOY ---"
+            for app in $APPS_TO_DEPLOY; do
+              echo "Building $app..."
+              $COMPOSE_CMD build "$app"
+            done
 
-            echo "--- Starting containers ---"
-            $COMPOSE_CMD up -d --remove-orphans
+            echo "--- Restarting only the rebuilt frontend containers (backends untouched) ---"
+            for app in $APPS_TO_DEPLOY; do
+              echo "Restarting $app..."
+              # Force-remove any stopped/dead container with this name first
+              docker ps -a -q --filter "name=epager-${app}" --filter "status=exited" \
+                --filter "status=dead" --filter "status=created" | xargs -r docker rm -f
+              $COMPOSE_CMD up -d --no-deps "$app"
+            done
 
             echo "--- Restarting Nginx to pick up any config changes ---"
             $COMPOSE_CMD restart nginx
