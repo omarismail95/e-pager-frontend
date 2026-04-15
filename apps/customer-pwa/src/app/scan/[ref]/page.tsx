@@ -75,14 +75,14 @@ export default function ScanStatusPage({ params }: PageProps) {
       playReadySound()
       setHasPlayedReady(true)
     }
-  }, [data?.status, soundEnabled, hasPlayedReady])
+  }, [data, soundEnabled, hasPlayedReady])
 
   // Re-enable sound on next order visit
   useEffect(() => {
     if (data?.status && data.status !== 'READY') {
       setHasPlayedReady(false)
     }
-  }, [data?.status])
+  }, [data])
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
