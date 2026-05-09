@@ -71,6 +71,11 @@ jobs:
             BUILD_LIST="${{ steps.changed.outputs.list }}"
             COMPOSE_CMD="docker compose -f docker-compose.yml -f docker-compose.nginx.yml --env-file .env.production"
 
+            echo "--- Freeing disk space: dangling images + build cache ---"
+            docker image prune -f
+            docker builder prune -f
+            df -h /
+
             if [ "$BUILD_LIST" = "all" ] || [ -z "$BUILD_LIST" ]; then
               APPS_TO_DEPLOY="staff-app admin-portal customer-pwa"
             else
