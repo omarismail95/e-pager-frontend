@@ -4,10 +4,11 @@
  */
 
 export interface StaffTokenClaims {
-  sub: string
-  staff_id: string
-  tenant_id?: string
-  roles?: string
+  sub: string       // staff user UUID
+  email?: string    // staff user email (added in backend JWT claims)
+  tid?: string      // tenant UUID (JWT claim name is "tid", not "tenant_id")
+  roles?: string[]  // array of role codes
+  perms?: string[]  // array of permission codes
   principal_type: 'STAFF'
   exp: number
   iat: number

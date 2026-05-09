@@ -67,7 +67,7 @@ export function ShopDevicesTab({ shopId }: { shopId: string }) {
 
   const revoke = useMutation({
     mutationFn: async (deviceId: string) => {
-      await client.DELETE('/api/shops/{shopId}/devices/{deviceId}' as never, {
+      await client.POST('/api/shops/{shopId}/devices/{deviceId}/revoke' as never, {
         params: { path: { shopId, deviceId } } as never,
       })
     },

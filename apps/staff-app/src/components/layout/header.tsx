@@ -34,7 +34,7 @@ export function DashboardHeader({ session }: DashboardHeaderProps) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className="gap-2">
             <User className="h-4 w-4" />
-            <span className="text-sm">{session.sub}</span>
+            <span className="text-sm">{session.email ?? session.sub}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">

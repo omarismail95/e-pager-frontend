@@ -91,7 +91,7 @@ export function OrderStatusCard({ displayNumber, status, createdAt, shopName }: 
 
       {/* Progress steps */}
       {status !== 'CANCELLED' && (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           {STATUS_STEPS.map((step, idx) => {
             const stepConfig = STATUS_CONFIG[step]
             const StepIcon = stepConfig.icon
@@ -99,21 +99,23 @@ export function OrderStatusCard({ displayNumber, status, createdAt, shopName }: 
             const isCurrent = stepIndex === idx
 
             return (
-              <div key={step} className="flex flex-1 flex-col items-center">
-                <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all ${
-                    isDone
-                      ? 'border-primary bg-primary text-primary-foreground'
-                      : 'border-muted bg-muted text-muted-foreground'
-                  } ${isCurrent ? 'scale-110' : ''}`}
-                >
-                  <StepIcon className="h-4 w-4" />
+              <div key={step} className="flex flex-1 items-center">
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all ${
+                      isDone
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : 'border-muted bg-muted text-muted-foreground'
+                    } ${isCurrent ? 'scale-110' : ''}`}
+                  >
+                    <StepIcon className="h-4 w-4" />
+                  </div>
+                  <p className={`mt-1 text-xs whitespace-nowrap ${isDone ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
+                    {stepConfig.label.split(' ')[0]}
+                  </p>
                 </div>
-                <p className={`mt-1 text-xs ${isDone ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
-                  {stepConfig.label.split(' ')[0]}
-                </p>
                 {idx < STATUS_STEPS.length - 1 && (
-                  <div className={`absolute mt-4 ml-8 h-0.5 w-full max-w-[calc(25%-2rem)] ${isDone ? 'bg-primary' : 'bg-muted'}`} />
+                  <div className={`h-0.5 flex-1 mx-1 mt-[-14px] ${stepIndex > idx ? 'bg-primary' : 'bg-muted'}`} />
                 )}
               </div>
             )

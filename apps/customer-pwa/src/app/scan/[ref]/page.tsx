@@ -95,8 +95,8 @@ export default function ScanStatusPage({ params }: PageProps) {
         </button>
       </div>
 
-      {/* Sound prompt — shown once on first load */}
-      {!soundEnabled && (
+      {/* Sound prompt — shown only while order is not yet ready */}
+      {!soundEnabled && data?.status !== 'READY' && data?.status !== 'COMPLETED' && (
         <div className="mx-4 mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm">
           <p className="font-medium text-amber-800">Want a sound when your order is ready?</p>
           <button
@@ -129,7 +129,7 @@ export default function ScanStatusPage({ params }: PageProps) {
               status={data.status as 'NEW' | 'IN_PROGRESS' | 'READY' | 'COMPLETED' | 'CANCELLED'}
               createdAt={data.createdAt}
             />
-            {data.status === 'READY' && soundEnabled && (
+            {data.status === 'READY' && (
               <div className="mt-4 rounded-xl bg-green-50 px-4 py-3 text-center">
                 <p className="font-semibold text-green-700">Your order is ready! 🎉</p>
                 <p className="text-sm text-green-600">Please come to the counter to collect it.</p>

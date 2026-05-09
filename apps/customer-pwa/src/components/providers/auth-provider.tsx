@@ -1,17 +1,14 @@
 'use client'
 
-import { useEffect } from 'react'
 import { setGlobalAuthToken } from '@epager/api-client'
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    fetch('/api/session')
-      .then((r) => r.json())
-      .then(({ token }: { token: string | null }) => {
-        setGlobalAuthToken(token)
-      })
-      .catch(() => {})
-  }, [])
+interface AuthProviderProps {
+  children: React.ReactNode
+  initialToken?: string | null
+}
 
+export function AuthProvider({ children, initialToken = null }: AuthProviderProps) {
+  // Set synchronously so token is available on first render before React Query fires.
+  setGlobalAuthToken(initialToken)
   return <>{children}</>
 }

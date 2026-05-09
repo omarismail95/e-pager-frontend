@@ -6,7 +6,8 @@ import { createMeteringClient } from '@epager/api-client/metering'
 
 interface QuotaUsage {
   resourceType: string
-  used: number
+  used?: number   // frontend alias
+  count?: number  // actual backend field name
   limit: number
   unit?: string
 }
@@ -81,7 +82,7 @@ export function QuotaMeters() {
             <QuotaMeter
               key={quota.resourceType}
               label={RESOURCE_LABELS[quota.resourceType] ?? quota.resourceType}
-              used={quota.used}
+              used={quota.used ?? quota.count ?? 0}
               limit={quota.limit}
               unit={quota.unit}
             />

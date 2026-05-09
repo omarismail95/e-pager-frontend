@@ -27,12 +27,10 @@ interface CustomerProfile {
   id: string
 }
 
-const STATUS_COLORS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  NEW: 'default',
-  IN_PROGRESS: 'default',
-  READY: 'default',
-  COMPLETED: 'secondary',
-  CANCELLED: 'destructive',
+const EVENT_LABELS: Record<string, string> = {
+  ORDER_CREATED_WITH_CUSTOMER: 'Order Placed',
+  CUSTOMER_ORDER_ATTACHED: 'Order Linked',
+  CUSTOMER_QR_SCANNED: 'QR Scanned',
 }
 
 // Tenant ID must be set per-deployment for the customer history lookup.
@@ -115,14 +113,14 @@ export default function OrdersPage() {
                 <Card className="active:scale-[0.98] transition-transform">
                   <CardContent className="flex items-center justify-between p-4">
                     <div>
-                      <p className="font-bold text-lg">Order</p>
+                      <p className="font-bold text-lg">Order #{event.orderId.slice(0, 8).toUpperCase()}</p>
                       <p className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(event.eventTime), { addSuffix: true })}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={STATUS_COLORS[event.eventType] ?? 'outline'}>
-                        {event.eventType.replace(/_/g, ' ')}
+                      <Badge variant="outline">
+                        {EVENT_LABELS[event.eventType] ?? 'Order'}
                       </Badge>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </div>
