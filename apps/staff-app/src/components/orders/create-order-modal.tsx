@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { Plus } from 'lucide-react'
 import {
   Button,
   Dialog,
@@ -8,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
   Label,
   Select,
   SelectContent,
@@ -22,8 +24,6 @@ import { createTokenClient } from '@epager/api-client/token'
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 
 interface CreateOrderModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
   shopId: string
   tenantId: string
   onCreated: () => void
@@ -35,13 +35,8 @@ interface CreatedOrder {
   qrUrl: string | null
 }
 
-export function CreateOrderModal({
-  open,
-  onOpenChange,
-  shopId,
-  tenantId,
-  onCreated,
-}: CreateOrderModalProps) {
+export function CreateOrderModal({ shopId, tenantId, onCreated }: CreateOrderModalProps) {
+  const [open, setOpen] = useState(false)
   const [channel, setChannel] = useState('CASHIER')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -95,7 +90,7 @@ export function CreateOrderModal({
   }
 
   function handleClose() {
-    onOpenChange(false)
+    setOpen(false)
     setCreated(null)
     setChannel('CASHIER')
     setError(null)
@@ -122,88 +117,83 @@ export function CreateOrderModal({
     }
   }
 
-  // QR code step — shown after order is created
-  if (created) {
-    return (
-      <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Order #{created.displayNumber} Created</DialogTitle>
-          </DialogHeader>
-
-          <div className="flex flex-col items-center gap-4 py-2">
-            {created.qrUrl ? (
-              <>
-                <p className="text-center text-sm text-muted-foreground">
-                  Show or print this QR code for the customer to track their order status in real time.
-                </p>
-                <div ref={printRef} className="flex flex-col items-center gap-3">
-                  <h2>Order #{created.displayNumber}</h2>
-                  <p>Scan to track your order</p>
-                  <QRCodeSVG
-                    value={created.qrUrl}
-                    size={200}
-                    level="M"
-                    includeMargin
-                  />
-                </div>
-                <Button variant="outline" className="w-full" onClick={handlePrint}>
-                  Print QR Code
-                </Button>
-              </>
-            ) : (
-              <p className="text-center text-sm text-muted-foreground">
-                Order created successfully. QR code generation was unavailable.
-              </p>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button onClick={handleClose} className="w-full">
-              Done
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    )
-  }
-
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else setOpen(true) }}>
+      <DialogTrigger asChild>
+        <Button size="sm">
+          <Plus className="mr-1 h-4 w-4" />
+          New Order
+        </Button>
+      </DialogTrigger>
+
       <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>New Order</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4 py-2">
-          {error && (
-            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {error}
+        {created ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Order #{created.displayNumber} Created</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col items-center gap-4 py-2">
+              {created.qrUrl ? (
+                <>
+                  <p className="text-center text-sm text-muted-foreground">
+                    Show or print this QR code for the customer to track their order status in real time.
+                  </p>
+                  <div ref={printRef} className="flex flex-col items-center gap-3">
+                    <h2>Order #{created.displayNumber}</h2>
+                    <p>Scan to track your order</p>
+                    <QRCodeSVG value={created.qrUrl} size={200} level="M" includeMargin />
+                  </div>
+                  <Button variant="outline" className="w-full" onClick={handlePrint}>
+                    Print QR Code
+                  </Button>
+                </>
+              ) : (
+                <p className="text-center text-sm text-muted-foreground">
+                  Order created successfully. QR code generation was unavailable.
+                </p>
+              )}
             </div>
-          )}
-          <div className="space-y-1.5">
-            <Label>Channel</Label>
-            <Select value={channel} onValueChange={setChannel}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="CASHIER">Walk-in / Cashier</SelectItem>
-                <SelectItem value="WEB">Online / Web</SelectItem>
-                <SelectItem value="APP">Mobile App</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button onClick={() => void handleCreate()} disabled={loading}>
-            {loading ? 'Creating...' : 'Create Order'}
-          </Button>
-        </DialogFooter>
+            <DialogFooter>
+              <Button onClick={handleClose} className="w-full">
+                Done
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>New Order</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              {error && (
+                <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                  {error}
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <Label>Channel</Label>
+                <Select value={channel} onValueChange={setChannel}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CASHIER">Walk-in / Cashier</SelectItem>
+                    <SelectItem value="WEB">Online / Web</SelectItem>
+                    <SelectItem value="APP">Mobile App</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button onClick={() => void handleCreate()} disabled={loading}>
+                {loading ? 'Creating...' : 'Create Order'}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )

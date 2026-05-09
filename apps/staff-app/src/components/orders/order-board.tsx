@@ -1,11 +1,9 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus } from 'lucide-react'
-import { Button, Badge } from '@epager/ui'
+import { Badge } from '@epager/ui'
 import { OrderCard, type Order, type OrderStatus } from './order-card'
 import { CreateOrderModal } from './create-order-modal'
-import { useState } from 'react'
 import { createOrderClient } from '@epager/api-client/order'
 
 const STATUS_COLUMNS: { status: OrderStatus; label: string; color: string }[] = [
@@ -22,7 +20,6 @@ interface OrderBoardProps {
 }
 
 export function OrderBoard({ shopId, tenantId }: OrderBoardProps) {
-  const [createOpen, setCreateOpen] = useState(false)
   const queryClient = useQueryClient()
   const client = createOrderClient()
 
@@ -81,10 +78,11 @@ export function OrderBoard({ shopId, tenantId }: OrderBoardProps) {
     <>
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{orders.length} orders • auto-refreshing</p>
-        <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-1 h-4 w-4" />
-          New Order
-        </Button>
+        <CreateOrderModal
+          shopId={shopId}
+          tenantId={tenantId}
+          onCreated={() => void queryClient.invalidateQueries({ queryKey: ['orders', shopId] })}
+        />
       </div>
 
       <div className="grid flex-1 grid-cols-2 gap-3 overflow-x-auto md:grid-cols-3 lg:grid-cols-5">
@@ -117,13 +115,6 @@ export function OrderBoard({ shopId, tenantId }: OrderBoardProps) {
         ))}
       </div>
 
-      <CreateOrderModal
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        shopId={shopId}
-        tenantId={tenantId}
-        onCreated={() => void queryClient.invalidateQueries({ queryKey: ['orders', shopId] })}
-      />
     </>
   )
 }
