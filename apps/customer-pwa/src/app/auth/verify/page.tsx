@@ -9,6 +9,7 @@ export default function VerifyPage() {
   const router = useRouter()
   const [otp, setOtp] = useState('')
   const [phone, setPhone] = useState('')
+  const [name, setName] = useState('')
   const [requestId, setRequestId] = useState('')
   const [debugOtpCode, setDebugOtpCode] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -19,11 +20,13 @@ export default function VerifyPage() {
     const storedPhone = sessionStorage.getItem('otp_phone')
     const storedRequestId = sessionStorage.getItem('otp_request_id')
     const storedDebugCode = sessionStorage.getItem('otp_debug_code')
+    const storedName = sessionStorage.getItem('otp_name')
     if (!storedPhone) {
       router.replace('/auth')
       return
     }
     setPhone(storedPhone)
+    setName(storedName ?? 'Customer')
     setRequestId(storedRequestId ?? '')
     if (storedDebugCode) setDebugOtpCode(storedDebugCode)
   }, [router])
@@ -42,7 +45,7 @@ export default function VerifyPage() {
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, otp, requestId }),
+        body: JSON.stringify({ phone, otp, requestId, name }),
       })
       if (!res.ok) {
         setError('Invalid code. Please try again.')
@@ -50,6 +53,7 @@ export default function VerifyPage() {
         return
       }
       sessionStorage.removeItem('otp_phone')
+      sessionStorage.removeItem('otp_name')
       sessionStorage.removeItem('otp_request_id')
       sessionStorage.removeItem('otp_debug_code')
       router.push('/orders')

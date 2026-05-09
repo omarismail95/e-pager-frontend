@@ -8,6 +8,7 @@ import { Button, Card, CardContent, CardFooter, Input, Label } from '@epager/ui'
 export default function AuthPage() {
   const router = useRouter()
   const [phone, setPhone] = useState('')
+  const [name, setName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -25,9 +26,10 @@ export default function AuthPage() {
         setError('Failed to send OTP. Please try again.')
         return
       }
-      // Store phone + server-returned otpRequestId for verify step
+      // Store phone + name + server-returned otpRequestId for verify step
       const data = (await res.json()) as { ok: boolean; otpRequestId?: string; debugOtpCode?: string | null }
       sessionStorage.setItem('otp_phone', phone)
+      sessionStorage.setItem('otp_name', name.trim() || 'Customer')
       sessionStorage.setItem('otp_request_id', data.otpRequestId ?? '')
       if (data.debugOtpCode) {
         sessionStorage.setItem('otp_debug_code', data.debugOtpCode)
@@ -49,7 +51,7 @@ export default function AuthPage() {
           <Phone className="h-8 w-8 text-primary-foreground" />
         </div>
         <h1 className="text-2xl font-bold">E-Pager</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Enter your phone number to continue</p>
+        <p className="mt-1 text-sm text-muted-foreground">Enter your details to continue</p>
       </div>
 
       <div className="w-full max-w-xs">
@@ -60,6 +62,18 @@ export default function AuthPage() {
                 <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>
               )}
               <div className="space-y-1.5">
+                <Label htmlFor="name">Your Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  required
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <div className="space-y-1.5">
                 <Label htmlFor="phone">Phone Number</Label>
                 <Input
                   id="phone"
@@ -69,12 +83,11 @@ export default function AuthPage() {
                   placeholder="+971 50 000 0000"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  autoFocus
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" disabled={loading || phone.length < 8}>
+              <Button type="submit" className="w-full" disabled={loading || phone.length < 8 || !name.trim()}>
                 {loading ? 'Sending OTP...' : 'Send Code'}
               </Button>
             </CardFooter>

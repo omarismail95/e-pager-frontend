@@ -2,6 +2,7 @@
 
 import { use, useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { getGlobalAuthToken } from '@epager/api-client'
 import { OrderStatusCard } from '@/components/orders/order-status-card'
 import { Skeleton } from '@epager/ui'
 
@@ -51,6 +52,21 @@ export default function ScanStatusPage({ params }: PageProps) {
   const prevStatusRef = useRef<string | null>(null)
   const hasPlayedReadyRef = useRef(false)
   const [soundEnabled, setSoundEnabled] = useState(false)
+
+  // Link this scan to the logged-in customer (fire-and-forget)
+  useEffect(() => {
+    const token = getGlobalAuthToken()
+    if (!token || !ref) return
+    fetch(`${apiUrl}/customer/orders/attach-scan`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ scanTokenReference: ref }),
+    }).catch(() => {/* best-effort — already attached or token expired */})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const { data, isLoading, isError } = useQuery<PublicOrderStatus>({
     queryKey: ['scan-status', ref],

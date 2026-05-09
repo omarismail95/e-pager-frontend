@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         otpRequestId: body.requestId,
         otpCode: body.otp,
         platform: 'WEB',
-        name: body.name ?? '',
+        name: body.name || 'Customer',
       }),
     })
     if (!res.ok) {
