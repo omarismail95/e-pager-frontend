@@ -118,7 +118,7 @@ export function CreateOrderModal({ shopId, tenantId, onCreated }: CreateOrderMod
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else setOpen(true) }}>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) handleClose() }}>
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="mr-1 h-4 w-4" />
