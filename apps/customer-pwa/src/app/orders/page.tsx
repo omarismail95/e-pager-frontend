@@ -41,17 +41,18 @@ export default function OrdersPage() {
   const client = createCustomerIdentityClient()
 
   // Step 1: get customer profile to obtain customerId
-  const { data: profile } = useQuery<CustomerProfile>({
+  const { data: profile, isError: profileError } = useQuery<CustomerProfile>({
     queryKey: ['customer-profile-id'],
     queryFn: async () => {
       const res = await client.GET('/customer/profile' as never, {} as never)
       if ((res as { error?: unknown }).error) throw (res as { error: unknown }).error
       return res.data as unknown as CustomerProfile
     },
+    retry: 1,
   })
 
   // Step 2: fetch order history from ledger service (via /customer/history gateway route)
-  const { data: ledgerPage, isLoading } = useQuery<LedgerPage>({
+  const { data: ledgerPage, isLoading, isError, error } = useQuery<LedgerPage>({
     queryKey: ['customer-order-history', profile?.id],
     enabled: !!profile?.id && !!TENANT_ID,
     queryFn: async () => {
@@ -64,10 +65,14 @@ export default function OrdersPage() {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       })
-      if (!res.ok) throw new Error('Failed to load order history')
+      if (!res.ok) {
+        const body = await res.text().catch(() => '')
+        throw new Error(`HTTP ${res.status}: ${body.slice(0, 120)}`)
+      }
       return res.json()
     },
     refetchInterval: 10_000,
+    retry: 1,
   })
 
   // Deduplicate by orderId — ledger may have multiple events per order
@@ -93,6 +98,16 @@ export default function OrdersPage() {
             <Package className="mb-3 h-12 w-12 text-muted-foreground opacity-30" />
             <p className="font-medium">Order history not configured</p>
             <p className="text-sm text-muted-foreground">Set NEXT_PUBLIC_TENANT_ID to enable</p>
+          </div>
+        ) : profileError ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="font-medium">Could not load your profile.</p>
+            <p className="mt-0.5 text-xs">Please log in again to continue.</p>
+          </div>
+        ) : isError ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="font-medium">Could not load order history.</p>
+            <p className="mt-0.5 font-mono text-xs break-all">{String(error)}</p>
           </div>
         ) : isLoading ? (
           <div className="space-y-3">
