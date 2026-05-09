@@ -52,11 +52,13 @@ export default function VerifyPage() {
         setOtp('')
         return
       }
+      const next = sessionStorage.getItem('otp_next') || '/orders'
       sessionStorage.removeItem('otp_phone')
       sessionStorage.removeItem('otp_name')
       sessionStorage.removeItem('otp_request_id')
       sessionStorage.removeItem('otp_debug_code')
-      router.push('/orders')
+      sessionStorage.removeItem('otp_next')
+      router.push(next)
       router.refresh()
     } catch {
       setError('Network error. Please try again.')

@@ -1,6 +1,7 @@
 'use client'
 
 import { use, useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { getGlobalAuthToken } from '@epager/api-client'
 import { OrderStatusCard } from '@/components/orders/order-status-card'
@@ -39,7 +40,6 @@ function playReadySound() {
       osc.start(ctx.currentTime + t)
       osc.stop(ctx.currentTime + t + 0.25)
     })
-    // Close context after sounds finish
     setTimeout(() => ctx.close(), 1500)
   } catch {
     // Web Audio not available — silently ignore
@@ -52,11 +52,15 @@ export default function ScanStatusPage({ params }: PageProps) {
   const prevStatusRef = useRef<string | null>(null)
   const hasPlayedReadyRef = useRef(false)
   const [soundEnabled, setSoundEnabled] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  // Link this scan to the logged-in customer (fire-and-forget)
+  // Try to attach this order to the logged-in customer. If not logged in,
+  // show a login CTA so the user can log in and come back with the token.
   useEffect(() => {
     const token = getGlobalAuthToken()
+    setIsLoggedIn(!!token)
     if (!token || !ref) return
+
     fetch(`${apiUrl}/customer/orders/attach-scan`, {
       method: 'POST',
       headers: {
@@ -64,7 +68,7 @@ export default function ScanStatusPage({ params }: PageProps) {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ scanTokenReference: ref }),
-    }).catch(() => {/* best-effort — already attached or token expired */})
+    }).catch(() => {/* best-effort */})
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -121,6 +125,20 @@ export default function ScanStatusPage({ params }: PageProps) {
           >
             Enable sound notifications
           </button>
+        </div>
+      )}
+
+      {/* Login CTA — shown only when not logged in and there's a real order */}
+      {!isLoggedIn && data?.orderId && (
+        <div className="mx-4 mt-4 rounded-lg border bg-card px-4 py-3 text-sm">
+          <p className="font-medium">Save this order to your history</p>
+          <p className="mt-0.5 text-muted-foreground text-xs">Log in to track all your orders in one place.</p>
+          <Link
+            href={`/auth?next=/scan/${ref}`}
+            className="mt-2 inline-block rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+          >
+            Log in
+          </Link>
         </div>
       )}
 

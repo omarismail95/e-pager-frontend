@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Phone } from 'lucide-react'
 import { Button, Card, CardContent, CardFooter, Input, Label } from '@epager/ui'
@@ -11,6 +11,13 @@ export default function AuthPage() {
   const [name, setName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  // Capture ?next= so we can redirect back after login (e.g. from scan page)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const next = params.get('next') ?? ''
+    if (next) sessionStorage.setItem('otp_next', next)
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
