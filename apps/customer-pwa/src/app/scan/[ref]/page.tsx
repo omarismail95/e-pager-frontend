@@ -53,6 +53,7 @@ export default function ScanStatusPage({ params }: PageProps) {
   const hasPlayedReadyRef = useRef(false)
   const [soundEnabled, setSoundEnabled] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [attachStatus, setAttachStatus] = useState<'idle' | 'linked' | 'failed'>('idle')
 
   // Try to attach this order to the logged-in customer. If not logged in,
   // show a login CTA so the user can log in and come back with the token.
@@ -68,7 +69,9 @@ export default function ScanStatusPage({ params }: PageProps) {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ scanTokenReference: ref }),
-    }).catch(() => {/* best-effort */})
+    })
+      .then((res) => setAttachStatus(res.ok ? 'linked' : 'failed'))
+      .catch(() => setAttachStatus('failed'))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -139,6 +142,18 @@ export default function ScanStatusPage({ params }: PageProps) {
           >
             Log in
           </Link>
+        </div>
+      )}
+
+      {/* Attach result feedback */}
+      {isLoggedIn && attachStatus === 'linked' && (
+        <div className="mx-4 mt-4 rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-sm text-green-700">
+          ✓ Order saved to your account
+        </div>
+      )}
+      {isLoggedIn && attachStatus === 'failed' && (
+        <div className="mx-4 mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          Could not link order — QR may have expired
         </div>
       )}
 

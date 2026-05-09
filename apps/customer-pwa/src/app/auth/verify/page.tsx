@@ -58,8 +58,10 @@ export default function VerifyPage() {
       sessionStorage.removeItem('otp_request_id')
       sessionStorage.removeItem('otp_debug_code')
       sessionStorage.removeItem('otp_next')
-      router.push(next)
-      router.refresh()
+      // Full reload so Next.js SSR reads the new auth cookie before any useEffect fires.
+      // router.push() is client-side and races with router.refresh() — the layout's
+      // AuthProvider would still have initialToken=null by the time the scan page mounts.
+      window.location.href = next
     } catch {
       setError('Network error. Please try again.')
     } finally {
